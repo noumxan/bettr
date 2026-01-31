@@ -9,16 +9,25 @@
   --bettr-navy: #1a2f4a;
   --bettr-cream: #f7f5f0;
   --bettr-coral: #e8a598;
+  --bettr-lime: #A8FF00;
 }
 
 body {
-  @apply bg-bettr-cream text-bettr-navy antialiased;
+  @apply antialiased;
 }
 
 /* Calm, ethical UI - no infinite scroll without intent */
 .feed-container {
   max-height: 80vh;
   overflow-y: auto;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
 }
 
 @layer utilities {

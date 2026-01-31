@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Home, LayoutGrid, Calendar, GraduationCap, Gift, Store, Shield } from "lucide-react";
+import { Home, LayoutGrid, Calendar, GraduationCap, Gift, Store, Shield, LayoutDashboard } from "lucide-react";
 import { useBettr } from "@/context/BettrContext";
 
 const nav = [
@@ -12,6 +12,7 @@ const nav = [
   { href: "/rewards", label: "Rewards", icon: Gift },
   { href: "/marketplace/ai", label: "AI & Assets", icon: Store },
   { href: "/verify", label: "Verify", icon: Shield },
+  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
 ];
 
 export default function Header() {

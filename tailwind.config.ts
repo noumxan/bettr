@@ -16,6 +16,10 @@ const config: Config = {
           navy: "#1a2f4a",
           cream: "#f7f5f0",
           coral: "#e8a598",
+          lime: "#A8FF00",
+          "lime-dim": "#7acc00",
+          dark: "#0f0f0f",
+          "dark-card": "#1a1a1a",
         },
       },
       fontFamily: {

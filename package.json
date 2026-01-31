@@ -4,15 +4,27 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "prisma generate && next build",
     "start": "next start",
-    "lint": "next lint"
+    "start:railway": "next start -p ${PORT:-3000}",
+    "lint": "next lint",
+    "setup": "prisma generate && prisma db push && prisma db seed",
+    "db:generate": "prisma generate",
+    "db:push": "prisma db push",
+    "db:seed": "npx ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts",
+    "db:studio": "prisma studio"
   },
   "dependencies": {
+    "@prisma/client": "^5.22.0",
+    "lucide-react": "^0.460.0",
     "next": "14.2.18",
+    "openai": "^6.17.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "lucide-react": "^0.460.0"
+    "zod": "^3.23.8"
+  },
+  "prisma": {
+    "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
   },
   "devDependencies": {
     "@types/node": "^20",
@@ -22,7 +34,9 @@
     "eslint": "^8",
     "eslint-config-next": "14.2.18",
     "postcss": "^8",
+    "prisma": "^5.22.0",
     "tailwindcss": "^3.4.14",
+    "ts-node": "^10.9.2",
     "typescript": "^5"
   }
 }

@@ -1,14 +1,17 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import { AuthProvider } from "@/context/AuthContext";
 import { BettrProvider } from "@/context/BettrContext";
-import Header from "@/components/Header";
+import ConditionalAdminLayout from "@/components/ConditionalAdminLayout";
+import AuthGate from "@/components/AuthGate";
+import NavigateChatbot from "@/components/NavigateChatbot";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
 export const metadata: Metadata = {
-  title: "Bettr — Social, But Better",
-  description: "User-controlled feed, algorithm marketplace, and wellbeing-first social.",
+  title: "Bettr — Your Feed",
+  description: "Bettr: your feed, algorithms, verification, rewards. Admin at /admin.",
 };
 
 export default function RootLayout({
@@ -19,10 +22,14 @@ export default function RootLayout({
   return (
     <html lang="en" className="scroll-smooth">
       <body className={`${inter.variable} font-sans antialiased`}>
-        <BettrProvider>
-          <Header />
-          <main className="mx-auto max-w-6xl px-4 py-6">{children}</main>
-        </BettrProvider>
+        <AuthProvider>
+          <AuthGate>
+            <BettrProvider>
+              <ConditionalAdminLayout>{children}</ConditionalAdminLayout>
+              <NavigateChatbot />
+            </BettrProvider>
+          </AuthGate>
+        </AuthProvider>
       </body>
     </html>
   );
