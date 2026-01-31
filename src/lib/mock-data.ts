@@ -1,0 +1,120 @@
+import type { AlgorithmProfile, FeedItem, CurriculumProgress, ScheduleBlock } from "./types";
+
+export const MOCK_ALGORITHMS: AlgorithmProfile[] = [
+  {
+    id: "study-mode",
+    name: "Study Mode",
+    description: "Prioritizes academic content, minimal distractions. Best for focus blocks.",
+    intent: "study",
+    popularity: 92,
+    trustScore: 88,
+    active: true,
+  },
+  {
+    id: "social-discovery",
+    name: "Social Discovery",
+    description: "New voices, diverse perspectives. Expand your network.",
+    intent: "social",
+    popularity: 78,
+    trustScore: 82,
+  },
+  {
+    id: "news-digest",
+    name: "News Digest",
+    description: "Curated journalism, fact-checked sources. Stay informed.",
+    intent: "news",
+    popularity: 85,
+    trustScore: 90,
+  },
+  {
+    id: "wellness-flow",
+    name: "Wellness Flow",
+    description: "Mental health, nutrition, and mindfulness content first.",
+    intent: "wellness",
+    popularity: 76,
+    trustScore: 85,
+  },
+  {
+    id: "balanced",
+    name: "Balanced",
+    description: "Mix of all intents. Default experience.",
+    intent: "social",
+    popularity: 95,
+    trustScore: 80,
+  },
+];
+
+export const MOCK_FEED_ITEMS: FeedItem[] = [
+  {
+    id: "1",
+    author: "Alex Chen",
+    authorHandle: "@alexchen",
+    contentType: "long-form",
+    title: "How I structure my study blocks",
+    body: "I use 25-min Pomodoro with 5-min breaks. The key is switching algorithms on Bettr so my feed doesn’t pull me into random threads during focus time.",
+    timestamp: "2026-01-31T10:00:00Z",
+    focusArea: "academic",
+    likes: 124,
+    comments: 18,
+  },
+  {
+    id: "2",
+    author: "Jordan Lee",
+    authorHandle: "@jordanlee",
+    contentType: "short-video",
+    body: "Quick stretch routine between sessions. Your back will thank you.",
+    timestamp: "2026-01-31T09:30:00Z",
+    focusArea: "physical-health",
+    likes: 89,
+    comments: 5,
+  },
+  {
+    id: "3",
+    author: "Bettr News",
+    authorHandle: "@bettrnews",
+    contentType: "journalism",
+    title: "Campus mental health resources — where to start",
+    body: "A short guide to university counselling, peer support, and when to seek help. No paywall.",
+    timestamp: "2026-01-31T09:00:00Z",
+    focusArea: "mental-health",
+    likes: 256,
+    comments: 42,
+  },
+  {
+    id: "4",
+    author: "Community",
+    authorHandle: "@community",
+    contentType: "community-note",
+    body: "This post was flagged by 3 verified students as misleading. Context: the study was retracted in 2025.",
+    timestamp: "2026-01-31T08:45:00Z",
+    likes: 12,
+    comments: 2,
+  },
+  {
+    id: "5",
+    author: "Sam Rivera",
+    authorHandle: "@samrivera",
+    contentType: "long-form",
+    title: "Nutrition hacks for exam season",
+    body: "What I eat (and avoid) during finals. Evidence-based, no fads.",
+    timestamp: "2026-01-31T08:00:00Z",
+    focusArea: "nutrition",
+    likes: 67,
+    comments: 9,
+  },
+];
+
+export const MOCK_CURRICULUM: CurriculumProgress[] = [
+  { focusArea: "mental-health", label: "Mental Health", completed: 3, total: 5, badgeUnlocked: false },
+  { focusArea: "physical-health", label: "Physical Health", completed: 2, total: 4, badgeUnlocked: false },
+  { focusArea: "academic", label: "Academic Progression", completed: 5, total: 6, badgeUnlocked: true },
+  { focusArea: "vocational", label: "Vocational Upskilling", completed: 1, total: 4, badgeUnlocked: false },
+  { focusArea: "nutrition", label: "Nutrition", completed: 2, total: 4, badgeUnlocked: false },
+];
+
+export const MOCK_SCHEDULE_BLOCKS: ScheduleBlock[] = [
+  { id: "s1", day: 1, startHour: 9, endHour: 12, algorithmId: "study-mode", label: "Morning focus" },
+  { id: "s2", day: 1, startHour: 12, endHour: 14, algorithmId: "news-digest", label: "Lunch read" },
+  { id: "s3", day: 1, startHour: 14, endHour: 17, algorithmId: "study-mode", label: "Afternoon study" },
+  { id: "s4", day: 1, startHour: 19, endHour: 22, algorithmId: "social-discovery", label: "Evening social" },
+];

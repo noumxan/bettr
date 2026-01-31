@@ -1,0 +1,28 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bettr-mint: #a8e6cf;
+  --bettr-sage: #88c9a1;
+  --bettr-forest: #2d5a3d;
+  --bettr-navy: #1a2f4a;
+  --bettr-cream: #f7f5f0;
+  --bettr-coral: #e8a598;
+}
+
+body {
+  @apply bg-bettr-cream text-bettr-navy antialiased;
+}
+
+/* Calm, ethical UI - no infinite scroll without intent */
+.feed-container {
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
