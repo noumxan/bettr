@@ -42,8 +42,13 @@ export async function assignUserToUniversityGroups(
     where: { universityId },
     select: { id: true },
   });
-  await prisma.userUniversityGroup.createMany({
-    data: groups.map((g) => ({ userId, groupId: g.id })),
-    skipDuplicates: true,
+  const existing = await prisma.userUniversityGroup.findMany({
+    where: { userId },
+    select: { groupId: true },
   });
+  const existingIds = new Set(existing.map((e) => e.groupId));
+  const toCreate = groups.filter((g) => !existingIds.has(g.id)).map((g) => ({ userId, groupId: g.id }));
+  if (toCreate.length > 0) {
+    await prisma.userUniversityGroup.createMany({ data: toCreate });
+  }
 }
