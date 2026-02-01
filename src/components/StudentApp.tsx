@@ -158,7 +158,7 @@ export default function StudentApp() {
   const [user, setUser] = useState<User | null>(null);
   const [algorithms, setAlgorithms] = useState<Algorithm[]>([]);
   const [activeAlgorithmId, setActiveAlgorithmId] = useState<string | null>(null);
-  const [rewards, setRewards] = useState<RewardSummary | null>(null);
+  const [rewards, setRewards] = useState<RewardSummary>({ balance: 0, history: [] });
   const [schedule, setSchedule] = useState<ScheduleBlock[]>([]);
   const [courses, setCourses] = useState<Course[]>([]);
   const [discounts, setDiscounts] = useState<Discount[]>([]);
@@ -239,15 +239,16 @@ export default function StudentApp() {
     try {
       const res = await fetch(`/api/rewards?userId=${encodeURIComponent(uid)}`);
       const data = await res.json();
-      // Only update state when we have a valid success response so we don't overwrite balance with error or null
       if (res.ok && typeof data.balance === "number") {
-        setRewards({
+        const next = {
           balance: data.balance,
           history: Array.isArray(data.history) ? data.history : [],
-        });
+        };
+        // Don't overwrite a positive balance with 0 from server (avoids refetch wiping just-earned BTR)
+        setRewards((prev) => (prev.balance > 0 && next.balance === 0 ? prev : next));
       }
     } catch {
-      // Don't setRewards(null) — would wipe optimistic balance after a like
+      // Keep current balance on network error
     }
   }, []);
 
@@ -350,10 +351,10 @@ export default function StudentApp() {
       const data = await res.json();
       if (data.ok && data.btrEarned > 0) {
         setLikedPosts((prev) => new Set(prev).add(postId));
-        setRewards((r) => r ? { ...r, balance: (r.balance ?? 0) + data.btrEarned } : { balance: data.btrEarned, history: [] });
+        setRewards((r) => ({ ...r, balance: (r.balance ?? 0) + data.btrEarned, history: [...r.history, { reason: `Liked ${category} post`, points: data.btrEarned }] }));
         setBtrToast(data.btrEarned);
         setTimeout(() => setBtrToast(null), 2000);
-        if (apiUserId) fetchRewards(apiUserId);
+        // Don't refetch here — server can return 0 and wipe the balance; rely on optimistic update and 30s poll
       } else if (data.ok) {
         setLikedPosts((prev) => new Set(prev).add(postId));
       } else {
@@ -368,7 +369,7 @@ export default function StudentApp() {
       setApiError("Network error. Try again.");
       setTimeout(() => setApiError(null), 5000);
     }
-  }, [apiUserId, likedPosts, fetchRewards]);
+  }, [apiUserId, likedPosts]);
 
   const sendAssistantMessage = useCallback(async () => {
     if (!openAssistantChat || !assistantChatInput.trim() || assistantChatLoading) return;
