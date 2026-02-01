@@ -56,15 +56,17 @@ SQLite needs a **persistent disk**. Railway uses **Volumes** for that.
    npm install && npx prisma generate && npm run build
    ```
    (Or leave default if Railway already runs `npm run build`; ensure it runs `prisma generate` before `next build`, which your `package.json` already does.)
-3. **Start Command** — set to:
-   ```bash
-   npm run start:railway
-   ```
-   This runs `next start -p ${PORT:-3000}` so the app listens on Railway’s `PORT`.  
-   If you prefer not to use the script, set Start Command to:
-   ```bash
-   npx next start -p $PORT
-   ```
+3. **Start Command** — set to **one of**:
+   - **Recommended (seed DB on every deploy):**
+     ```bash
+     npm run deploy:railway
+     ```
+     This runs `prisma db push` and `prisma db seed` inside Railway (so algorithms and demo data exist), then starts the app. Safe to use every time; the seed is idempotent.
+   - **Faster start (after DB is already set up):**
+     ```bash
+     npm run start:railway
+     ```
+     Or: `npx next start -p $PORT`
 4. **Root Directory** — leave blank (or `.`) if the app is at the repo root.
 5. Save.
 
