@@ -173,6 +173,8 @@ export default function StudentApp() {
   const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set());
   const [btrToast, setBtrToast] = useState<number | null>(null);
   const [apiError, setApiError] = useState<string | null>(null);
+  const [resetLoading, setResetLoading] = useState(false);
+  const [resetDone, setResetDone] = useState(false);
   const [timetablePreset, setTimetablePreset] = useState<"normal" | "standard" | "exam" | "relaxed" | "intensive" | "balance">("standard");
   const [curriculumCalendarView, setCurriculumCalendarView] = useState<"weekly" | "monthly">("weekly");
   const [aiSuggestion, setAiSuggestion] = useState<string | null>(null);
@@ -340,13 +342,20 @@ export default function StudentApp() {
   }, [apiUserId, fetchAlgorithms, fetchRewards, fetchSchedule]);
 
   const handleLike = useCallback(async (postId: string, category: "education" | "maths" | "social" | "news") => {
-    if (!apiUserId || likedPosts.has(postId)) return;
+    if (likedPosts.has(postId)) return;
     setApiError(null);
+    // Ensure we have a userId (backend resolves "demo" to first user)
+    const uid = apiUserId ?? (await fetchDemoUser());
+    if (!uid) {
+      setApiError("Could not load user. Refresh the page.");
+      setTimeout(() => setApiError(null), 5000);
+      return;
+    }
     try {
       const res = await fetch("/api/engagement/like", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId: apiUserId, postId, category }),
+        body: JSON.stringify({ userId: uid, postId, category }),
       });
       const data = await res.json();
       if (data.ok && data.btrEarned > 0) {
@@ -354,7 +363,8 @@ export default function StudentApp() {
         setRewards((r) => ({ ...r, balance: (r.balance ?? 0) + data.btrEarned, history: [...r.history, { reason: `Liked ${category} post`, points: data.btrEarned }] }));
         setBtrToast(data.btrEarned);
         setTimeout(() => setBtrToast(null), 2000);
-        // Don't refetch here — server can return 0 and wipe the balance; rely on optimistic update and 30s poll
+        // Sync with server after a short delay (don't overwrite with 0 — fetchRewards guards that)
+        setTimeout(() => fetchRewards(uid), 1500);
       } else if (data.ok) {
         setLikedPosts((prev) => new Set(prev).add(postId));
       } else {
@@ -369,7 +379,7 @@ export default function StudentApp() {
       setApiError("Network error. Try again.");
       setTimeout(() => setApiError(null), 5000);
     }
-  }, [apiUserId, likedPosts]);
+  }, [apiUserId, likedPosts, fetchDemoUser, fetchRewards]);
 
   const sendAssistantMessage = useCallback(async () => {
     if (!openAssistantChat || !assistantChatInput.trim() || assistantChatLoading) return;
@@ -1257,20 +1267,25 @@ export default function StudentApp() {
               <p className="text-sm font-medium text-zinc-300 mb-2">Testing</p>
               <button
                 type="button"
+                disabled={resetLoading}
                 onClick={async () => {
                   setApiError(null);
+                  setResetDone(false);
+                  setResetLoading(true);
                   try {
+                    // Always send a userId so backend can resolve "demo" to first user
+                    const uid = apiUserId ?? (await fetchDemoUser()) ?? "demo";
                     const res = await fetch("/api/reset-student", {
                       method: "POST",
                       headers: { "Content-Type": "application/json" },
-                      body: JSON.stringify({ userId: apiUserId ?? undefined }),
+                      body: JSON.stringify({ userId: uid }),
                     });
                     const data = await res.json();
                     if (res.ok && data.ok) {
-                      const uid = apiUserId ?? (await fetchDemoUser());
-                      if (uid) await fetchRewards(uid);
                       setLikedPosts(new Set());
                       setRewards({ balance: 0, history: [] });
+                      setResetDone(true);
+                      setTimeout(() => setResetDone(false), 3000);
                     } else {
                       const msg =
                         typeof data?.error === "string"
@@ -1282,12 +1297,15 @@ export default function StudentApp() {
                   } catch {
                     setApiError("Network error. Try again.");
                     setTimeout(() => setApiError(null), 5000);
+                  } finally {
+                    setResetLoading(false);
                   }
                 }}
-                className="w-full rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-2.5 text-sm font-medium text-amber-200 hover:bg-amber-500/20 transition"
+                className="w-full rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-2.5 text-sm font-medium text-amber-200 hover:bg-amber-500/20 transition disabled:opacity-60"
               >
-                Reset BTR & likes (for testing) — earn BTR again by liking pics
+                {resetLoading ? "Resetting…" : resetDone ? "Reset done — like pics to earn BTR" : "Reset BTR & likes (for testing) — earn BTR again by liking pics"}
               </button>
+              <p className="mt-1.5 text-xs text-zinc-500">If reset or like doesn’t work, ensure the server ran seed (e.g. Start Command: <code className="bg-white/10 px-1 rounded">npm run deploy:railway</code>).</p>
             </div>
             <div>
               <p className="text-sm font-medium text-zinc-300 mb-2">Tips & integrations</p>
