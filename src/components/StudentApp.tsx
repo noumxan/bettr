@@ -172,6 +172,7 @@ export default function StudentApp() {
   const [error, setError] = useState<string | null>(null);
   const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set());
   const [btrToast, setBtrToast] = useState<number | null>(null);
+  const [apiError, setApiError] = useState<string | null>(null);
   const [timetablePreset, setTimetablePreset] = useState<"normal" | "standard" | "exam" | "relaxed" | "intensive" | "balance">("standard");
   const [curriculumCalendarView, setCurriculumCalendarView] = useState<"weekly" | "monthly">("weekly");
   const [aiSuggestion, setAiSuggestion] = useState<string | null>(null);
@@ -333,6 +334,7 @@ export default function StudentApp() {
 
   const handleLike = useCallback(async (postId: string, category: "education" | "maths" | "social" | "news") => {
     if (!apiUserId || likedPosts.has(postId)) return;
+    setApiError(null);
     try {
       const res = await fetch("/api/engagement/like", {
         method: "POST",
@@ -348,9 +350,17 @@ export default function StudentApp() {
         if (apiUserId) fetchRewards(apiUserId);
       } else if (data.ok) {
         setLikedPosts((prev) => new Set(prev).add(postId));
+      } else {
+        const msg =
+          typeof data?.error === "string"
+            ? data.error
+            : (data?.error as { message?: string })?.message ?? "Couldn't register like.";
+        setApiError(msg);
+        setTimeout(() => setApiError(null), 5000);
       }
     } catch {
-      // ignore
+      setApiError("Network error. Try again.");
+      setTimeout(() => setApiError(null), 5000);
     }
   }, [apiUserId, likedPosts, fetchRewards]);
 
@@ -658,6 +668,11 @@ export default function StudentApp() {
             {btrToast !== null && (
               <div className="fixed bottom-24 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 rounded-xl bg-bettr-lime px-4 py-2 text-black font-semibold shadow-lg animate-pulse">
                 <BettrTokenLogo size={20} /> +{btrToast} BTR earned!
+              </div>
+            )}
+            {apiError && (
+              <div className="fixed bottom-24 left-1/2 -translate-x-1/2 z-50 max-w-[90vw] rounded-xl bg-amber-500/95 px-4 py-2 text-black font-medium shadow-lg">
+                {apiError}
               </div>
             )}
           </>
@@ -1236,6 +1251,7 @@ export default function StudentApp() {
               <button
                 type="button"
                 onClick={async () => {
+                  setApiError(null);
                   try {
                     const res = await fetch("/api/reset-student", {
                       method: "POST",
@@ -1248,9 +1264,17 @@ export default function StudentApp() {
                       if (uid) await fetchRewards(uid);
                       setLikedPosts(new Set());
                       setRewards({ balance: 0, history: [] });
+                    } else {
+                      const msg =
+                        typeof data?.error === "string"
+                          ? data.error
+                          : (data?.error as { message?: string })?.message ?? "Reset failed.";
+                      setApiError(msg);
+                      setTimeout(() => setApiError(null), 5000);
                     }
                   } catch {
-                    // ignore
+                    setApiError("Network error. Try again.");
+                    setTimeout(() => setApiError(null), 5000);
                   }
                 }}
                 className="w-full rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-2.5 text-sm font-medium text-amber-200 hover:bg-amber-500/20 transition"

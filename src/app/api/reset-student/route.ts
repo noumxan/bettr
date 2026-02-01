@@ -1,22 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { resolveDemoUserId } from "@/lib/demo-user";
 
 /**
  * Reset the student account for testing: clear all BTR (reward ledger) and
  * engagement likes so you can like posts again and earn BTR.
  * Uses the same "demo" user as the app (first verified user, or first user).
  */
-async function resolveUserId(userId: string | null): Promise<string | null> {
-  if (!userId || userId === "demo") {
-    const user = await prisma.user.findFirst({
-      where: { isVerified: true },
-      select: { id: true },
-    });
-    const fallback = await prisma.user.findFirst({ select: { id: true } });
-    return (user ?? fallback)?.id ?? null;
-  }
-  return userId;
-}
 
 export async function POST(req: NextRequest) {
   try {
@@ -32,9 +22,10 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    userId = await resolveUserId(userId);
+    userId = await resolveDemoUserId(userId);
 
     if (!userId) {
+      console.error("[reset-student] No user found. Run seed on server.");
       return NextResponse.json(
         { error: "No user found. Run seed first (npm run setup)." },
         { status: 400 }

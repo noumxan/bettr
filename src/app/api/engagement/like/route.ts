@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
+import { resolveDemoUserId } from "@/lib/demo-user";
 
 const schema = z.object({
   userId: z.string().min(1),
@@ -13,20 +14,15 @@ const schema = z.object({
  * Education/maths posts award more BTR to incentivize learning.
  * Bounty 4 + 5: Monetization + Curriculum.
  */
-async function resolveUserId(userId: string): Promise<string | null> {
-  if (userId !== "demo") return userId;
-  const user = await prisma.user.findFirst({ where: { isVerified: true }, select: { id: true } });
-  const fallback = await prisma.user.findFirst({ select: { id: true } });
-  return (user ?? fallback)?.id ?? null;
-}
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const data = schema.parse(body);
 
-    const userId = await resolveUserId(data.userId);
+    const userId = await resolveDemoUserId(data.userId);
     if (!userId) {
+      console.error("[engagement/like] No user found (userId=%s). Run seed on server.", data.userId);
       return NextResponse.json(
         { error: "No user found. Use the app after signing in or run seed." },
         { status: 400 }
@@ -61,6 +57,7 @@ export async function POST(req: NextRequest) {
     if (e instanceof z.ZodError) {
       return NextResponse.json({ error: e.flatten() }, { status: 400 });
     }
+    console.error("[engagement/like]", e);
     return NextResponse.json({ error: "Failed to record like" }, { status: 500 });
   }
 }
