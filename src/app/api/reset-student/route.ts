@@ -1,13 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { resolveDemoUserId } from "@/lib/demo-user";
+
+/** Resolve "demo" to first real user id (verified first, then any). */
+async function resolveDemoUserId(userId: string | null): Promise<string | null> {
+  if (!userId || userId === "demo") {
+    const user = await prisma.user.findFirst({ where: { isVerified: true }, select: { id: true } });
+    const fallback = await prisma.user.findFirst({ select: { id: true } });
+    return (user ?? fallback)?.id ?? null;
+  }
+  return userId;
+}
 
 /**
  * Reset the student account for testing: clear all BTR (reward ledger) and
  * engagement likes so you can like posts again and earn BTR.
  * Uses the same "demo" user as the app (first verified user, or first user).
  */
-
 export async function POST(req: NextRequest) {
   try {
     const userIdParam = req.nextUrl.searchParams.get("userId");

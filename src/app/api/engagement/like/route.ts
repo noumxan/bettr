@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
-import { resolveDemoUserId } from "@/lib/demo-user";
 
 const schema = z.object({
   userId: z.string().min(1),
@@ -9,12 +8,21 @@ const schema = z.object({
   category: z.enum(["education", "maths", "social", "news"]).optional(),
 });
 
+/** Resolve "demo" to first real user id (verified first, then any). */
+async function resolveDemoUserId(userId: string | null): Promise<string | null> {
+  if (!userId || userId === "demo") {
+    const user = await prisma.user.findFirst({ where: { isVerified: true }, select: { id: true } });
+    const fallback = await prisma.user.findFirst({ select: { id: true } });
+    return (user ?? fallback)?.id ?? null;
+  }
+  return userId;
+}
+
 /**
  * Like a post → earn Bettr Tokens (BTR).
  * Education/maths posts award more BTR to incentivize learning.
  * Bounty 4 + 5: Monetization + Curriculum.
  */
-
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
