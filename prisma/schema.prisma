@@ -1,0 +1,209 @@
+// Bettr – Prisma schema (SQLite)
+// DATABASE_URL: local "file:./dev.db" | Railway "file:/data/dev.db"
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ---------- Identity / JISC ----------
+model University {
+  id          String   @id @default(cuid())
+  name        String?
+  entityId    String   @unique
+  metadataUrl String?
+  users       User[]
+  groups      UniversityGroup[]
+  courses     Course[]
+  workspaces  Workspace[]
+}
+
+model UniversityGroup {
+  id           String   @id @default(cuid())
+  universityId String
+  name         String
+  externalId   String?
+  university   University @relation(fields: [universityId], references: [id], onDelete: Cascade)
+  userGroups   UserUniversityGroup[]
+}
+
+model User {
+  id                    String   @id @default(cuid())
+  email                 String   @unique
+  eduPersonPrincipalName String? @unique
+  eduPersonAffiliation  String?
+  displayName           String?
+  universityId          String?
+  isVerified            Boolean?
+  university            University?              @relation(fields: [universityId], references: [id])
+  userToggles           UserAlgorithmToggle[]
+  scheduleBlocks        ScheduleBlock[]
+  rewardEntries         RewardEntry[]
+  userBadges            UserBadge[]
+  userUniversityGroups UserUniversityGroup[]
+  enrollments           Enrollment[]
+  workspaceMembers      WorkspaceMember[]
+}
+
+model FederationMetadata {
+  entityId String @id
+  type     String?
+  xml      String?
+  json     String?
+}
+
+model UserUniversityGroup {
+  userId     String
+  groupId    String
+  user       User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  group      UniversityGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  @@id([userId, groupId])
+}
+
+// ---------- Algorithms & Scheduler ----------
+model Algorithm {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  intent      String?
+  popularity  Int?
+  trustScore  Int?
+  ipfsCid     String?
+  solanaMint  String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  userToggles    UserAlgorithmToggle[]
+  scheduleBlocks ScheduleBlock[]
+  courseTopics   CourseTopic[]
+}
+
+model UserAlgorithmToggle {
+  userId      String
+  algorithmId String
+  active      Boolean  @default(true)
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  algorithm   Algorithm @relation(fields: [algorithmId], references: [id], onDelete: Cascade)
+  @@id([userId, algorithmId])
+}
+
+model ScheduleBlock {
+  id          String   @id @default(cuid())
+  userId      String
+  algorithmId String
+  dayOfWeek   Int
+  startHour   Int
+  endHour     Int
+  label       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  algorithm   Algorithm @relation(fields: [algorithmId], references: [id], onDelete: Cascade)
+}
+
+// ---------- Rewards ----------
+model RewardEntry {
+  id          String   @id @default(cuid())
+  userId      String
+  reason      String?
+  points      Int
+  txSignature String?
+  createdAt   DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// ---------- Badges ----------
+model Badge {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  focusArea   String?
+  escoSkillId String?
+  userBadges  UserBadge[]
+}
+
+model UserBadge {
+  userId   String
+  badgeId  String
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  badge    Badge  @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+  @@id([userId, badgeId])
+}
+
+// ---------- AI & Digital Assets ----------
+model AIAssistant {
+  id         String  @id @default(cuid())
+  name       String
+  description String?
+  skillFocus String?
+  pricing    String?
+}
+
+model DigitalAsset {
+  id          String   @id @default(cuid())
+  name        String
+  type        String?
+  metaplexUri String?
+  spl404Mint  String?
+}
+
+// ---------- Courses ----------
+model Course {
+  id           String   @id @default(cuid())
+  title        String
+  description  String?
+  universityId String?
+  type         String?
+  university   University?   @relation(fields: [universityId], references: [id])
+  topics       CourseTopic[]
+  enrollments  Enrollment[]
+}
+
+model CourseTopic {
+  id          String   @id @default(cuid())
+  courseId    String
+  title       String
+  order       Int?
+  algorithmId String?
+  course      Course    @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  algorithm   Algorithm? @relation(fields: [algorithmId], references: [id])
+}
+
+model Enrollment {
+  userId   String
+  courseId String
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  @@id([userId, courseId])
+}
+
+// ---------- Workspaces ----------
+model Workspace {
+  id           String   @id @default(cuid())
+  name         String?
+  universityId String?
+  university   University? @relation(fields: [universityId], references: [id])
+  members      WorkspaceMember[]
+}
+
+model WorkspaceMember {
+  userId     String
+  workspaceId String
+  role       String?
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspace  Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  @@id([userId, workspaceId])
+}
+
+// ---------- Student discounts (Digital Asset Hub) ----------
+model StudentDiscount {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  btrCost     Int?
+  partnerName String?
+  category    String?
+}
