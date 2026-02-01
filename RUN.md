@@ -31,6 +31,12 @@
 - **"PrismaClient is unable to run in the browser"** — run `npx prisma generate` and restart the dev server.
 - **"Can't reach database server"** — ensure `.env` exists and contains `DATABASE_URL="file:./dev.db"`. Run `npx prisma db push` to create the DB file.
 - **Blank or error on load** — run `npx prisma db seed` to add sample data, then refresh.
+- **"No algorithms available" / "No algorithms yet"** — the DB has no algorithm rows. From the project folder run:
+  ```bash
+  npx prisma db push
+  npm run db:seed
+  ```
+  You should see `Seed complete.` in the terminal. Then restart the dev server and refresh. If `npm run db:seed` fails, try `npx prisma db seed` and check the error. Open **http://localhost:3000/api/algorithms** in the browser; you should see a JSON array of 4 algorithms.
 
 ## Scripts
 
