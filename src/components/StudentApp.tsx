@@ -239,9 +239,15 @@ export default function StudentApp() {
     try {
       const res = await fetch(`/api/rewards?userId=${encodeURIComponent(uid)}`);
       const data = await res.json();
-      setRewards(data);
+      // Only update state when we have a valid success response so we don't overwrite balance with error or null
+      if (res.ok && typeof data.balance === "number") {
+        setRewards({
+          balance: data.balance,
+          history: Array.isArray(data.history) ? data.history : [],
+        });
+      }
     } catch {
-      setRewards(null);
+      // Don't setRewards(null) — would wipe optimistic balance after a like
     }
   }, []);
 
