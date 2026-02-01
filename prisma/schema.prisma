@@ -135,10 +135,11 @@ model Badge {
 }
 
 model UserBadge {
-  userId   String
-  badgeId  String
-  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  badge    Badge  @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+  userId    String
+  badgeId   String
+  earnedAt  DateTime @default(now())
+  user      User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  badge     Badge  @relation(fields: [badgeId], references: [id], onDelete: Cascade)
   @@id([userId, badgeId])
 }
 

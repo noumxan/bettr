@@ -134,7 +134,7 @@ type Course = { id: string; title: string; description?: string | null; type: st
 type Discount = { id: string; name: string; description?: string | null; btrCost: number; partnerName?: string | null; category: string };
 type AIAssistant = { id: string; name: string; description: string; skillFocus: string; pricing?: string | null };
 type DigitalAsset = { id: string; name: string; type: string; metaplexUri?: string | null };
-type UserBadge = { id: string; badgeId: string; earnedAt: string; badge: { name: string; focusArea: string } };
+type UserBadge = { userId: string; badgeId: string; earnedAt?: string; badge: { name: string; focusArea?: string | null } };
 
 const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
@@ -1129,7 +1129,7 @@ export default function StudentApp() {
               {userBadges.length === 0 && <p className="text-sm text-zinc-500">No badges yet. Complete curriculum to earn.</p>}
               <div className="space-y-2">
                 {userBadges.map((ub) => (
-                  <div key={ub.id} className="rounded-2xl border border-white/10 bg-bettr-dark-card p-4 flex items-center gap-3">
+                  <div key={`${ub.userId}-${ub.badgeId}`} className="rounded-2xl border border-white/10 bg-bettr-dark-card p-4 flex items-center gap-3">
                     <Award className="h-5 w-5 text-bettr-lime shrink-0" />
                     <div>
                       <p className="font-medium text-white">{ub.badge?.name ?? "Badge"}</p>

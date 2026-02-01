@@ -26,8 +26,8 @@ export async function getUserBadges(userId: string) {
 export async function getLeaderboard(limit = 20) {
   const counts = await prisma.userBadge.groupBy({
     by: ["userId"],
-    _count: { id: true },
-    orderBy: { _count: { id: "desc" } },
+    _count: { badgeId: true },
+    orderBy: { _count: { badgeId: "desc" } },
     take: limit,
   });
   const userIds = counts.map((c) => c.userId);
@@ -38,7 +38,7 @@ export async function getLeaderboard(limit = 20) {
   const userMap = Object.fromEntries(users.map((u) => [u.id, u]));
   return counts.map((c) => ({
     userId: c.userId,
-    badgeCount: c._count.id,
+    badgeCount: c._count.badgeId,
     user: userMap[c.userId],
   }));
 }
