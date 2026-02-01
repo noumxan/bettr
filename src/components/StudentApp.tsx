@@ -345,13 +345,14 @@ export default function StudentApp() {
         setRewards((r) => r ? { ...r, balance: (r.balance ?? 0) + data.btrEarned } : { balance: data.btrEarned, history: [] });
         setBtrToast(data.btrEarned);
         setTimeout(() => setBtrToast(null), 2000);
+        if (apiUserId) fetchRewards(apiUserId);
       } else if (data.ok) {
         setLikedPosts((prev) => new Set(prev).add(postId));
       }
     } catch {
       // ignore
     }
-  }, [apiUserId, likedPosts]);
+  }, [apiUserId, likedPosts, fetchRewards]);
 
   const sendAssistantMessage = useCallback(async () => {
     if (!openAssistantChat || !assistantChatInput.trim() || assistantChatLoading) return;
@@ -1236,10 +1237,15 @@ export default function StudentApp() {
                 type="button"
                 onClick={async () => {
                   try {
-                    const res = await fetch("/api/reset-student", { method: "POST" });
+                    const res = await fetch("/api/reset-student", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ userId: apiUserId ?? undefined }),
+                    });
                     const data = await res.json();
                     if (res.ok && data.ok) {
-                      if (apiUserId) await fetchRewards(apiUserId);
+                      const uid = apiUserId ?? (await fetchDemoUser());
+                      if (uid) await fetchRewards(uid);
                       setLikedPosts(new Set());
                       setRewards({ balance: 0, history: [] });
                     }

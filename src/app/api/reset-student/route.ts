@@ -6,21 +6,33 @@ import { prisma } from "@/lib/db";
  * engagement likes so you can like posts again and earn BTR.
  * Uses the same "demo" user as the app (first verified user, or first user).
  */
+async function resolveUserId(userId: string | null): Promise<string | null> {
+  if (!userId || userId === "demo") {
+    const user = await prisma.user.findFirst({
+      where: { isVerified: true },
+      select: { id: true },
+    });
+    const fallback = await prisma.user.findFirst({ select: { id: true } });
+    return (user ?? fallback)?.id ?? null;
+  }
+  return userId;
+}
+
 export async function POST(req: NextRequest) {
   try {
     const userIdParam = req.nextUrl.searchParams.get("userId");
-    let userId: string | null = null;
+    let userId: string | null = userIdParam;
 
-    if (userIdParam) {
-      userId = userIdParam;
-    } else {
-      const user = await prisma.user.findFirst({
-        where: { isVerified: true },
-        select: { id: true },
-      });
-      const fallback = await prisma.user.findFirst({ select: { id: true } });
-      userId = (user ?? fallback)?.id ?? null;
+    if (!userId) {
+      try {
+        const body = await req.json().catch(() => ({}));
+        userId = (body as { userId?: string }).userId ?? null;
+      } catch {
+        // no body
+      }
     }
+
+    userId = await resolveUserId(userId);
 
     if (!userId) {
       return NextResponse.json(
