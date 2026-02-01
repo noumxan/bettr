@@ -13,14 +13,15 @@ const bountyCards = [
 
 async function getMetrics() {
   try {
-    const [verifiedCount, algorithmCount, scheduleCount, rewardSum, badgeCount, aiCount] =
+    const [verifiedCount, algorithmCount, scheduleCount, rewardSum, badgeCount, aiAssistantCount, digitalAssetCount] =
       await Promise.all([
         prisma.user.count({ where: { isVerified: true } }),
         prisma.algorithm.count(),
         prisma.scheduleBlock.count(),
         prisma.rewardEntry.aggregate({ _sum: { points: true } }),
         prisma.userBadge.count(),
-        prisma.aIAssistant.count() + prisma.digitalAsset.count(),
+        prisma.aIAssistant.count(),
+        prisma.digitalAsset.count(),
       ]);
     return {
       verifiedStudents: verifiedCount,
@@ -28,7 +29,7 @@ async function getMetrics() {
       scheduledFeeds: scheduleCount,
       payoutTotal: rewardSum._sum.points ?? 0,
       badgesEarned: badgeCount,
-      aiAndAssets: aiCount,
+      aiAndAssets: aiAssistantCount + digitalAssetCount,
     };
   } catch {
     return {
