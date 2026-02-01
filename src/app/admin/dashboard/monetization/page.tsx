@@ -1,6 +1,8 @@
 import { getPayoutTotal } from "@/lib/services/rewards";
 import { prisma } from "@/lib/db";
 
+export const dynamic = "force-dynamic";
+
 export default async function MonetizationPage() {
   const [payoutTotal, recentPayouts, rewardCount] = await Promise.all([
     getPayoutTotal(),

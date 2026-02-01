@@ -2,6 +2,8 @@ import Link from "next/link";
 import { Shield, LayoutGrid, Calendar, Gift, GraduationCap, Bot } from "lucide-react";
 import { prisma } from "@/lib/db";
 
+export const dynamic = "force-dynamic";
+
 const bountyCards = [
   { href: "/dashboard/identity", label: "Verified students", icon: Shield, color: "bg-bettr-mint" },
   { href: "/dashboard/algorithms", label: "Active algorithms", icon: LayoutGrid, color: "bg-bettr-sage" },

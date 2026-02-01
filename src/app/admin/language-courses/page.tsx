@@ -1,6 +1,9 @@
 import { prisma } from "@/lib/db";
 import AdminDataTable from "@/components/admin/AdminDataTable";
 import AdminPreviewPhoneFrame from "@/components/admin/AdminPreviewPhoneFrame";
+
+export const dynamic = "force-dynamic";
+
 export default async function LanguageCoursesAdminPage() {
   const courses = await prisma.course.findMany({
     where: { type: "language" },

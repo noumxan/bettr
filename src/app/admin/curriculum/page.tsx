@@ -3,6 +3,8 @@ import AdminDataTable from "@/components/admin/AdminDataTable";
 import AdminPreviewPhoneFrame from "@/components/admin/AdminPreviewPhoneFrame";
 import Link from "next/link";
 
+export const dynamic = "force-dynamic";
+
 export default async function CurriculumAdminPage() {
   const [badges, courses] = await Promise.all([
     prisma.badge.findMany({ orderBy: { focusArea: "asc" }, include: { _count: { select: { userBadges: true } } } }),

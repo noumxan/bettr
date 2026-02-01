@@ -1,5 +1,7 @@
 import { prisma } from "@/lib/db";
 
+export const dynamic = "force-dynamic";
+
 export default async function LanguageCoursesPage() {
   const courses = await prisma.course.findMany({
     where: { type: "language" },

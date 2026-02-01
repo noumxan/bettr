@@ -3,6 +3,8 @@ import AdminDataTable from "@/components/admin/AdminDataTable";
 import AdminPreviewPhoneFrame from "@/components/admin/AdminPreviewPhoneFrame";
 import { Calendar, Clock } from "lucide-react";
 
+export const dynamic = "force-dynamic";
+
 const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 export default async function AdminSchedulerPage() {

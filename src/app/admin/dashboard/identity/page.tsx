@@ -1,6 +1,8 @@
 import { prisma } from "@/lib/db";
 import Link from "next/link";
 
+export const dynamic = "force-dynamic";
+
 export default async function IdentityPage() {
   const [universities, verifiedCount, metadataCount] = await Promise.all([
     prisma.university.findMany({ orderBy: { name: "asc" }, include: { _count: { select: { users: true } } } }),

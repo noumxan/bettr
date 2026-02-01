@@ -6,6 +6,8 @@ import AdminSection from "@/components/admin/AdminSection";
 import AdminPreviewPhoneFrame from "@/components/admin/AdminPreviewPhoneFrame";
 import { getMetrics } from "@/lib/admin-metrics";
 
+export const dynamic = "force-dynamic";
+
 export default async function AdminOverviewPage() {
   const m = await getMetrics();
 

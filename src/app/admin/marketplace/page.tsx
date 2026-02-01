@@ -4,6 +4,8 @@ import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import AdminPreviewPhoneFrame from "@/components/admin/AdminPreviewPhoneFrame";
 import { Check, X, FileSearch } from "lucide-react";
 
+export const dynamic = "force-dynamic";
+
 export default async function AlgorithmMarketplaceAdminPage() {
   const algorithms = await prisma.algorithm.findMany({
     orderBy: { popularity: "desc" },

@@ -1,5 +1,7 @@
 import { listBadges, getLeaderboard } from "@/lib/services/badges";
 
+export const dynamic = "force-dynamic";
+
 export default async function BadgesPage() {
   const [badges, leaderboard] = await Promise.all([listBadges(), getLeaderboard(10)]);
 

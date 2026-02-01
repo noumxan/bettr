@@ -1,5 +1,7 @@
 import { prisma } from "@/lib/db";
 
+export const dynamic = "force-dynamic";
+
 export default async function AIAssetsPage() {
   const [assistants, assets] = await Promise.all([
     prisma.aIAssistant.findMany({ orderBy: { name: "asc" } }),

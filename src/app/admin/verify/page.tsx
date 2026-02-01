@@ -1,6 +1,9 @@
 import { prisma } from "@/lib/db";
 import AdminDataTable from "@/components/admin/AdminDataTable";
 import AdminPreviewPhoneFrame from "@/components/admin/AdminPreviewPhoneFrame";
+
+export const dynamic = "force-dynamic";
+
 export default async function StudentOnboardingAdminPage() {
   const [universities, metadata] = await Promise.all([
     prisma.university.findMany({ orderBy: { name: "asc" }, include: { _count: { select: { users: true } } } }),
