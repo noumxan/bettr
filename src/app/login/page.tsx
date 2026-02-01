@@ -95,7 +95,6 @@ export default function LoginPage() {
             Bettr
           </h1>
           <p className="mt-1 text-sm text-white/80">Social. But Bettr.</p>
-          <p className="mt-2 text-xs text-white/50">Admin? Use username <strong>admin</strong> / 1234 to open the dashboard.</p>
           {jiscMessage && (
             <p className="mt-3 rounded-lg bg-amber-500/20 px-3 py-2 text-xs text-amber-200 border border-amber-500/30">
               {jiscMessage}
